@@ -7,6 +7,7 @@ module.exports = {
     mode: isProMode ? 'production' : 'development',
     entry: {
         3: path.resolve(__dirname, 'js/3.js'),
+        hello: path.resolve(__dirname, 'js/hello.js'),
     },
     output: {
         path: path.resolve(__dirname, 'public'),
@@ -16,9 +17,16 @@ module.exports = {
     devtool: 'inline-source-map',
     plugins: [
         new HtmlWebpackPlugin({
-            title: 'Development',
+            title: '3.html Development',
             filename: "3.html",
             template: path.resolve(__dirname, 'pages/3.html'),
+            chunks:['3']
+        }),
+        new HtmlWebpackPlugin({
+            title: 'hello.html Development',
+            filename: "hello.html",
+            template: path.resolve(__dirname, 'pages/hello.html'),
+            chunks:['hello']
         }),
     ],
     devServer: {
