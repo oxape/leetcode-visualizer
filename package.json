@@ -1,0 +1,30 @@
+{
+  "name": "leetcode-visualizer",
+  "version": "1.0.0",
+  "description": "leetcode visualizer",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development webpack server --config webpack.config.js --open",
+    "build": "cross-env NODE_ENV=production webpack --config webpack.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oxape/leetcode-visualizer.git"
+  },
+  "author": "oxape",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/oxape/leetcode-visualizer/issues"
+  },
+  "homepage": "https://github.com/oxape/leetcode-visualizer#readme",
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "html-webpack-plugin": "^5.5.0",
+    "webpack": "^5.69.1",
+    "webpack-cli": "^4.9.2",
+    "webpack-dev-server": "^4.7.4"
+  }
+}
