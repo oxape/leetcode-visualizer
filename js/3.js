@@ -1,158 +1,29 @@
 import Two from "two.js"
 
-//addBackdrop(25);
+var two = new Two({
+    type: Two.Types.svg,
+    fullscreen: true,
+    autostart: true
+  }).appendTo(document.body);
 
-const radius = 40,
-      editColor = 'rgb(79, 128, 255)',
-      mouse = new Two.Vector(),
-      temp = new Two.Vector();
+var path; // Used to reference the currently selected path
+var domElement = two.renderer.domElement;
 
-const two = new Two({
-  type: Two.Types.canvas,
-  fullscreen: true,
-  autostart: true
-}).appendTo(document.body);
+var content = two.makeGroup();
 
-let cx, cy, current = null, isDragging = false;
+path = new Two.Path();
+path.linewidth = 2;
+path.noFill();
+path.automatic = false;
 
-let svg = document.querySelector('svg');
-svg.style.display = 'none';
+content.add(path)
 
-svg = two.interpret(svg);
-svg.center();
-svg.linewidth = radius;
-svg.cap = svg.join = 'round';
-svg.noFill().stroke = '#333';
+var anchor = new Two.Anchor(100, 100, 0, 0, 0, 0);
+anchor.command = Two.Commands[path.vertices.length > 0 ? 'curve' : 'move'];
 
-const points = new Two.Points();
-points.size = radius / 4;
-points.noStroke().fill = editColor;
+path.vertices.push(anchor);
 
-for (let i = 0; i < svg.children.length; i++) {
+var anchor = new Two.Anchor(200, 200, 0, 0, 0, 0);
+anchor.command = Two.Commands[path.vertices.length > 0 ? 'curve' : 'move'];
 
-  const child = svg.children[i];
-  const vertices = child.vertices;
-  
-  for (let j = 0; j < vertices.length; j++) {
-
-    const v = child.vertices[j];
-
-    v.relative = false;
-    v.controls.left.add(v);
-    v.controls.right.add(v);
-
-    if (j === 0 || j === vertices.length - 1) {
-
-      points.vertices.push(v);
-
-    } else {
-
-      points.vertices.push(v, v.controls.left, v.controls.right);
-      const vertices = [v.controls.left, v.clone(), v.controls.right];
-      const line = new Two.Path(vertices);
-      line.noFill().stroke = editColor;
-      line.linewidth = 2;
-
-      attach(v, vertices[1]);
-
-      two.add(line);
-
-    }
-
-  }
-
-}
-
-two.add(points);
-
-two.bind('resize', resize);
-resize();
-
-window.addEventListener('pointerdown', pointerdown, false);
-window.addEventListener('pointermove', pointermove, false);
-window.addEventListener('pointerup', pointerup, false);
-
-function resize() {
-  cx = two.width * 0.5;
-  cy = two.height * 0.5;
-  two.scene.position.set(cx, cy);
-}
-
-function attach(a, b) {
-  a.bind(Two.Events.Types.change, function() {
-    b.copy(a);
-  });
-}
-
-function pointerdown(e) {
-  if (current) {
-    isDragging = true;
-  }
-}
-
-function pointermove(e) {
-
-  mouse.x = e.clientX;
-  mouse.y = e.clientY;
-
-  if (isDragging) {
-
-    current.x = mouse.x - two.scene.position.x;
-    current.y = mouse.y - two.scene.position.y;
-
-  } else {
-
-    let matched = false;
-
-    for (let i = 0; i < points.vertices.length; i++) {
-
-      const v = points.vertices[i];
-      const dist = temp.copy(v).add(two.scene.position).distanceToSquared(mouse);
-
-      if (dist < 64) {
-        two.renderer.domElement.style.cursor = 'pointer';
-        matched = true;
-        current = v;
-      }
-
-    }
-
-    if (!matched) {
-      two.renderer.domElement.style.cursor = 'default';
-      current = null;
-    }
-
-  }
-
-}
-
-function pointerup(e) {
-  isDragging = false;
-}
-
-function addBackdrop(d) {
-
-  const dimensions = d || 50;
-  const two = new Two({
-    type: Two.Types.canvas,
-    width: dimensions,
-    height: dimensions
-  });
-
-  const r = dimensions / 5;
-  const center = dimensions / 2;
-
-  const a = two.makeLine(center - r, center, center + r, center);
-  const b = two.makeLine(center, center - r, center, center + r);
-
-  a.stroke = b.stroke = '#aaa';
-  a.linewidth = b.linewidth = 0.25;
-
-  two.update();
-
-  const style = document.body.style;
-  style.backgroundImage = `url(${two.renderer.domElement.toDataURL()})`;
-  style.backgroundRepeat = 'repeat';
-  style.backgroundSize = `${dimensions}px`;
-
-}
+path.vertices.push(anchor);
