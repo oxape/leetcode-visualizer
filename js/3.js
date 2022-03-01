@@ -1,4 +1,4 @@
-import Two from "../lib/js/two.module.js"
+import Two from "two.js"
 
 //addBackdrop(25);
 

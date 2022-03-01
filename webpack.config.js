@@ -5,10 +5,12 @@ const isProMode = process.env.NODE_ENV === 'production'
 
 module.exports = {
     mode: isProMode ? 'production' : 'development',
-    entry: './js/3.js',
+    entry: {
+        3: path.resolve(__dirname, 'js/3.js'),
+    },
     output: {
         path: path.resolve(__dirname, 'public'),
-        filename: 'pages/3.bundle.js',
+        filename: 'pages/[name].[fullhash].js',
         clean: true,
     },
     devtool: 'inline-source-map',
