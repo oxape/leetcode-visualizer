@@ -12,7 +12,7 @@ module.exports = {
     },
     output: {
         path: path.resolve(__dirname, 'public'),
-        filename: 'pages/[name].[fullhash].js',
+        filename: 'js/[name].[fullhash].js',
         clean: true,
     },
     devtool: 'inline-source-map',
