@@ -1,5 +1,23 @@
 import Two from "two.js"
 
+class ElementRangeLine extends Two.Path {
+    constructor(x, y, ewidth, n) {
+        super()
+        this.linewidth = 2;
+        this.noFill();
+        this.automatic = false;
+
+        var anchor = new Two.Anchor(0-100/2, 50+0, 0, 0, 0, 0);
+        anchor.command = Two.Commands[this.vertices.length > 0 ? 'curve' : 'move'];
+
+        this.vertices.push(anchor);
+
+        var anchor = new Two.Anchor(0-100/2, 50+10, 0, 0, 0, 0);
+        anchor.command = Two.Commands[this.vertices.length > 0 ? 'curve' : 'move'];
+        this.vertices.push(anchor);
+    }
+}
+
 var two = new Two({
     type: Two.Types.svg,
     fullscreen: true,
@@ -9,6 +27,9 @@ var two = new Two({
 var path; // Used to reference the currently selected path
 
 var content = two.makeGroup();
+
+var rangeLine = new ElementRangeLine();
+content.add(rangeLine)
 
 path = new Two.Path();
 path.linewidth = 2;
@@ -20,24 +41,28 @@ content.add(path)
 const styles = {
     family: 'monospace',
     size: 50,
-    leading: 50,
-    weight: 900
+    leading: 0,
+    weight: 900,
   };
 
-var text = new Two.Text("123", 0, 80, styles);
+var text = new Two.Text("123", 0, 0, styles);
+const rect = text.getBoundingClientRect();
+console.log(two.width)
+console.log(rect)
+const textWidth = rect.width;
 content.add(text)
 
-var anchor = new Two.Anchor(0, 100, 0, 0, 0, 0);
+var anchor = new Two.Anchor(0-rect.width/2, 50+0, 0, 0, 0, 0);
 anchor.command = Two.Commands[path.vertices.length > 0 ? 'curve' : 'move'];
 
 path.vertices.push(anchor);
 
-var anchor = new Two.Anchor(0, 110, 0, 0, 0, 0);
+var anchor = new Two.Anchor(0-rect.width/2, 50+10, 0, 0, 0, 0);
 anchor.command = Two.Commands[path.vertices.length > 0 ? 'curve' : 'move'];
 
 path.vertices.push(anchor);
 
-content.position.set(two.width/2-300/2, two.height / 2-200);
+content.position.set(two.width/2, (two.height-rect.height)/2);
 
 // Bind a function to scale and rotate the group to the animation loop.
 two.bind('update', update);
@@ -56,17 +81,18 @@ function update(frameCount) {
         duration = 0;
         progress = duration/3.0;
     }
-    width = 200*progress;
+    // width = textWidth*progress;
+    width = rect.width*progress;
 
     if (path.vertices.length > 2) {
         path.vertices.splice(2, 2);
     }
 
-    var anchor = new Two.Anchor(0+width, 110, 0, 0, 0, 0);
+    var anchor = new Two.Anchor(0-rect.width/2+width, 50+10, 0, 0, 0, 0);
     anchor.command = Two.Commands[path.vertices.length > 0 ? 'curve' : 'move'];
     path.vertices.push(anchor);
 
-    var anchor = new Two.Anchor(0+width, 100, 0, 0, 0, 0);
+    var anchor = new Two.Anchor(0-rect.width/2+width, 50+0, 0, 0, 0, 0);
     anchor.command = Two.Commands[path.vertices.length > 0 ? 'curve' : 'move'];
     path.vertices.push(anchor);
     anchor.trigger(Two.Events.Types.change);
