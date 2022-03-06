@@ -143,7 +143,7 @@ const styles = {
 
 var text = new Two.Text("0", 0, 0, styles);
 const textWidth = text.getBoundingClientRect().width;
-text.value = "aabbcwd"
+text.value = "abcxdefghcijd"
 content.add(text)
 
 const rect = text.getBoundingClientRect();
