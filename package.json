@@ -28,6 +28,7 @@
     "webpack-dev-server": "^4.7.4"
   },
   "dependencies": {
+    "async": "^3.2.3",
     "two.js": "^0.8.3"
   }
 }
