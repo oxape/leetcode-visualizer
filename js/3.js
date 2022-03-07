@@ -90,3 +90,5 @@ async.forEachOf(text.value, function (c, key, callback) {
   }, function (err) {
     if (err) console.error(err.message);
   })
+
+  //TODO: ElementRangeLine update完成使用promise通知，接着调用callback循环
