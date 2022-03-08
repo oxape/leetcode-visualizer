@@ -103,14 +103,28 @@ export class ElementRangeLine extends Two.Group {
     }
 
     animateDuring(total) {
-        this.total = total
-        this.progress = 0.0
-        this.duration = 0.0
+        //TODO: 这里不加延时forEach跑不完，需要研究
+        setTimeout(() => {
+            this.total = total*Math.abs(this.numberOfElement-this.lastNumberOfElement)
+            this.progress = 0.0
+            this.duration = 0.0
+            if (this.total < 0.1) {
+                this.total = 0.1
+            }
+        }, 0.1)
         return this
     }
     
     update(frameDelta) {
+        if (!(!!this.total) || this.total < 0.001) {
+            return this;
+        }
         if (this.duration > this.total*1000) {
+            if (!!this.completion) {
+                console.log('completion')
+                this.completion()
+            }
+            this.total = 0
             return this
         }
         this.duration += frameDelta;
@@ -120,5 +134,9 @@ export class ElementRangeLine extends Two.Group {
         }
         this.refresh()
         return this
+    }
+
+    onComplete(completion) {
+        this.completion = completion;
     }
 }

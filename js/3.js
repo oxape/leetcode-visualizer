@@ -22,7 +22,9 @@ const styles = {
 
 var text = new Two.Text("0", 0, 0, styles);
 const textWidth = text.getBoundingClientRect().width;
-text.value = "abcxdefghcijd"
+// text.value = "abcxcdefgh"
+text.value = "abcxcib"
+// text.value = "abcxcib"
 content.add(text)
 
 const rect = text.getBoundingClientRect();
@@ -39,22 +41,19 @@ two.play();
 
 console.log('now')
 
-setTimeout(() => {
-    rangeLine.expandTo(3)
-    // rangeLine.refresh()
-    rangeLine.animateDuring(5.0)
-}, 1000)
+// setTimeout(() => {
+//     rangeLine.expandTo(3)
+//     // rangeLine.refresh()
+//     rangeLine.animateDuring(5.0)
+// }, 1000)
 
-setTimeout(() => {
-    rangeLine.startAt(3)
-    rangeLine.expandTo(1)
-    // rangeLine.refresh()
-    rangeLine.animateDuring(2.0)
-}, 3500)
+// setTimeout(() => {
+//     rangeLine.startAt(3)
+//     rangeLine.expandTo(1)
+//     // rangeLine.refresh()
+//     rangeLine.animateDuring(2.0)
+// }, 3500)
 
-var current_dict = {}
-var nums = 0
-var max_length = 0
 // for (var index = 0; index < text.value.length; index++) {
 //     const c = text.value[index]
 //     if (current_dict.hasOwnProperty(c)) {
@@ -72,23 +71,41 @@ var max_length = 0
 //     max_length = nums
 // }
 
+var current_dict = {}
+var nums = 0
+var max_length = 0
 var index = 0
-async.forEachOf(text.value, function (c, key, callback) {
+var start = 0
+async.forEachSeries(text.value, function (c, callback) {
     console.log(c)
     if (current_dict.hasOwnProperty(c)) {
         if (nums > max_length) {
             max_length = nums
         }
         const current_character_index = (current_dict[c] + 1)
+        if (index-current_character_index+1 < nums+1) {
+            start = current_character_index;
+        } else {
+            start = index-nums;
+        }
+        current_dict[c] = index
         nums = Math.min(index - current_character_index + 1, nums + 1)
+        console.log(`not start = ${start} nums = ${nums}`)
+        rangeLine.startAt(start).expandTo(nums).animateDuring(2.5).onComplete(()=>{
+            callback();
+        })
+        index += 1
     } else {
-        nums +1
+        nums += 1
+        current_dict[c] = index
+        index += 1
+        console.log(`start = ${start} nums = ${nums}`)
+        rangeLine.startAt(start).expandTo(nums).animateDuring(2.5).onComplete(()=>{
+            callback();
+        })
     }
-    current_dict[c] = index
-    index += 1
-    callback();
   }, function (err) {
     if (err) console.error(err.message);
   })
 
-  //TODO: ElementRangeLine update完成使用promise通知，接着调用callback循环
+  //TODO: startAt加动画
