@@ -1,5 +1,82 @@
 import Two from "two.js"
 
+class AnimParam extends Object {
+    constructor() {
+        super()
+        this.time = 0.0
+        this.duration = 0.0
+        this.progress = 0.0
+        this.from = 0.0
+        this.to = 0.0
+        this.current = 0.0
+        this.animating = false
+    }
+
+    onComplete(completion) {
+        this.completion = completion
+        if (!(!!this.duration) || this.duration < 0.001) {
+            this.progress = 1.0
+            if (this.animating) {
+                if (!!this.completion) {
+                    console.log('completion')
+                    this.completion()
+                }
+                this.animating = false
+                this.duration = 0.0
+                this.progress = 1.0
+            }
+            return this
+        }
+    }
+
+    animate(from, to, duration) {
+        this.animating = true
+        this.from = from
+        this.to = to
+        this.duration = duration
+        this.time = 0.0
+        this.progress = 1.0
+        return this
+    }
+
+    advance(frameDelta) {
+        if (!(!!this.duration) || this.duration < 0.001) {
+            this.progress = 1.0
+            if (this.animating) {
+                if (!!this.completion) {
+                    console.log('completion')
+                    this.completion()
+                }
+                this.animating = false
+                this.duration = 0.0
+                this.progress = 1.0
+            }
+            return this
+        }
+        if (this.time > this.duration*1000) {
+            if (!!this.completion) {
+                console.log('completion')
+                this.completion()
+            }
+            this.animating = false
+            this.duration = 0.0
+            this.progress = 1.0
+            return this
+        }
+        this.time += frameDelta;
+        this.progress = this.time/(this.duration*1000);
+        if (this.progress > 1.0) {
+            this.progress = 1.0;
+        }
+        return this
+    }
+
+    getValue() {
+        this.current = this.from + (this.to-this.from)*this.progress
+        return this.current
+    }
+}
+
 export class ElementRangeLine extends Two.Group {
 
     constructor(x=0, y=0, widthOfElement, numberOfElement) {
@@ -8,11 +85,12 @@ export class ElementRangeLine extends Two.Group {
         this.startX = x
         this.x = x
         this.y = y
+        this.startNumber = 0
         this.widthOfElement = widthOfElement
         this.numberOfElement = numberOfElement
         this.height = 15
-        this.duration = 0.0
-        this.progress = 1.0
+        this.startAnimParam = new AnimParam()
+        this.expandAnimParam = new AnimParam()
 
         var path = new Two.Path()
         path.linewidth = 2;
@@ -67,14 +145,13 @@ export class ElementRangeLine extends Two.Group {
             this.text.translation.x = this.x
             this.text.translation.y = this.y+this.height+18
         } else {
-            if (this.progress < 0.999) {
-                const width = this.widthOfElement*this.lastNumberOfElement
-                const extraWidth = (this.numberOfElement-this.lastNumberOfElement)*this.widthOfElement*this.progress
-                this.addAnchor(this.x+width+extraWidth*this.progress, this.y+this.height)
-                this.addAnchor(this.x+width+extraWidth*this.progress, this.y)
+            if (this.expandAnimParam.animating) {
+                const width = this.widthOfElement*this.expandAnimParam.getValue()
+                this.addAnchor(this.x+width, this.y+this.height)
+                this.addAnchor(this.x+width, this.y)
                 
-                this.text.value = `${Math.ceil((0.01+this.widthOfElement*this.lastNumberOfElement+extraWidth*this.progress)/this.widthOfElement)}`
-                this.text.translation.x = this.x+(this.widthOfElement*this.lastNumberOfElement+extraWidth*this.progress)*0.5
+                this.text.value = `${Math.ceil((0.01+width)/this.widthOfElement)}`
+                this.text.translation.x = this.x+width*0.5
                 this.text.translation.y = this.y+this.height+18
             } else {
                 const width = this.widthOfElement*this.numberOfElement
@@ -84,14 +161,13 @@ export class ElementRangeLine extends Two.Group {
                 this.text.value = `${this.numberOfElement}`
                 this.text.translation.x = this.x+this.widthOfElement*this.numberOfElement*0.5
                 this.text.translation.y = this.y+this.height+18
-
-                this.lastNumberOfElement = this.numberOfElement
             }
         }
         return this
     }
 
     startAt(n) {
+        this.lastStartNumber = this.startNumber
         this.x = this.startX+n*this.widthOfElement
         return this
     }
@@ -104,34 +180,15 @@ export class ElementRangeLine extends Two.Group {
 
     animateDuring(total) {
         //TODO: 这里不加延时forEach跑不完，需要研究
-        setTimeout(() => {
-            this.total = total*Math.abs(this.numberOfElement-this.lastNumberOfElement)
-            this.progress = 0.0
-            this.duration = 0.0
-            if (this.total < 0.1) {
-                this.total = 0.1
-            }
-        }, 0.1)
+        this.expandAnimParam.animate(this.lastNumberOfElement, this.numberOfElement, Math.abs(this.numberOfElement-this.lastNumberOfElement)*total).onComplete(() => {
+            this.lastNumberOfElement = this.numberOfElement
+            this.completion()
+        })
         return this
     }
     
     update(frameDelta) {
-        if (!(!!this.total) || this.total < 0.001) {
-            return this;
-        }
-        if (this.duration > this.total*1000) {
-            if (!!this.completion) {
-                console.log('completion')
-                this.completion()
-            }
-            this.total = 0
-            return this
-        }
-        this.duration += frameDelta;
-        this.progress = this.duration/(this.total*1000);
-        if (this.progress > 1.0) {
-            this.progress = 1.0;
-        }
+        this.expandAnimParam.advance(frameDelta)
         this.refresh()
         return this
     }

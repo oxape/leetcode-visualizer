@@ -28,7 +28,7 @@ text.value = "abcxcib"
 content.add(text)
 
 const rect = text.getBoundingClientRect();
-var rangeLine = new ElementRangeLine(rect.left, rect.bottom+4, textWidth, 1);
+var rangeLine = new ElementRangeLine(rect.left, rect.bottom+4, textWidth, 0);
 content.add(rangeLine)
 
 content.position.set(two.width/2, (two.height-rect.height)/2);
