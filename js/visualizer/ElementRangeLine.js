@@ -35,22 +35,16 @@ class AnimParam extends Object {
         this.to = to
         this.duration = duration
         this.time = 0.0
-        this.progress = 1.0
+        this.progress = 0.0
         return this
     }
 
     advance(frameDelta) {
+        if (!this.animating) {
+            return this;
+        }
         if (!(!!this.duration) || this.duration < 0.001) {
             this.progress = 1.0
-            if (this.animating) {
-                if (!!this.completion) {
-                    console.log('completion')
-                    this.completion()
-                }
-                this.animating = false
-                this.duration = 0.0
-                this.progress = 1.0
-            }
             return this
         }
         if (this.time > this.duration*1000) {
@@ -73,6 +67,7 @@ class AnimParam extends Object {
 
     getValue() {
         this.current = this.from + (this.to-this.from)*this.progress
+        console.log(this.current)
         return this.current
     }
 }

@@ -33,8 +33,13 @@ content.add(rangeLine)
 
 content.position.set(two.width/2, (two.height-rect.height)/2);
 
+var timeCount = 0
 two.bind('update', () => {
+    // if (timeCount%10 == 0) {
+    //     rangeLine.update(two.timeDelta)
+    // }
     rangeLine.update(two.timeDelta)
+    timeCount += 1
 });
 
 two.play();
